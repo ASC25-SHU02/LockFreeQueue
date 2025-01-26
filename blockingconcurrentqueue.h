@@ -366,6 +366,17 @@ public:
 		}
 	}
 
+	template<typename U>
+	inline void wait_dequeue_with_lock(U& item, std::mutex* worker)
+	{
+		while (!sema->wait(worker)) {
+			continue;
+		}
+		while (!inner.try_dequeue(item)) {
+			continue;
+		}
+	}
+
 	// Blocks the current thread until either there's something to dequeue
 	// or the timeout (specified in microseconds) expires. Returns false
 	// without setting `item` if the timeout expires, otherwise assigns

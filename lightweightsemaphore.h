@@ -370,6 +370,18 @@ public:
 		return tryWait() || waitWithPartialSpinning();
 	}
 
+	bool wait(std::mutex* lock)
+	{
+		if (tryWait()) {
+			return true;
+		} else {
+			lock->unlock();
+			bool ret = waitWithPartialSpinning();
+			lock->lock();
+			return ret;
+		}
+	}
+
 	bool wait(std::int64_t timeout_usecs)
 	{
 		return tryWait() || waitWithPartialSpinning(timeout_usecs);
